@@ -5,11 +5,25 @@ import jakarta.persistence.EntityManager;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public abstract class RepositoryBase<T> {
 
     protected final EntityManager em;
     private final Class<T> entityClass;
+
+    void runInTransaction(Consumer<EntityManager> action){
+        var txt = em.getTransaction();
+        try{
+            txt.begin();
+            action.accept(em);
+            txt.commit();
+        } catch (RuntimeException e) {
+            if (txt.isActive())
+                txt.rollback();
+            throw e;
+        }
+    }
 
     @Inject
     public RepositoryBase(EntityManager em, Class<T> entityClass) {
@@ -18,41 +32,18 @@ public abstract class RepositoryBase<T> {
     }
 
     public void create(T obj) {
-        try {
-            em.getTransaction().begin();
-            em.persist(obj);
-            em.getTransaction().commit();
-
-        } catch (Exception e) {
-            if (em.getTransaction().isActive())
-                em.getTransaction().rollback();
-            e.printStackTrace();
-        }
+        Consumer<EntityManager> action = x -> x.persist(obj);
+        runInTransaction(action);
     }
 
     public void update(T obj) {
-        try{
-            em.getTransaction().begin();
-            em.merge(obj);
-            em.getTransaction().commit();
-        } catch (RuntimeException e) {
-            if (em.getTransaction().isActive())
-                em.getTransaction().rollback();
-            e.printStackTrace();
-        }
+        Consumer<EntityManager> action = x -> x.merge(obj);
+        runInTransaction(action);
     }
 
     public void delete(Object obj) {
-        try{
-            em.getTransaction().begin();
-            var entity = em.contains(obj) ? obj: em.merge(obj);
-            em.remove(entity);
-            em.getTransaction().commit();
-        } catch (RuntimeException e) {
-            if (em.getTransaction().isActive())
-                em.getTransaction().rollback();
-            e.printStackTrace();
-        }
+        Consumer<EntityManager> action = x -> x.remove(obj);
+        runInTransaction(action);
     }
 
     public Optional<T> findById(Long id) {

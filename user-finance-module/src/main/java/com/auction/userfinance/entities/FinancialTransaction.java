@@ -1,16 +1,20 @@
 package com.auction.userfinance.entities;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Data
+@Getter
+@Setter
+@Table(name = "financial_transactions")
+@Builder
+@ToString
 @NoArgsConstructor
+@AllArgsConstructor
 public class FinancialTransaction {
 
     @Id
@@ -28,7 +32,8 @@ public class FinancialTransaction {
     @Column(nullable = false)
     private TransactionType type;
 
-    @ManyToOne
+    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "wallet_id", nullable = false)
     private Wallet wallet;
 }

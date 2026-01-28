@@ -1,15 +1,14 @@
 package com.auction.userfinance.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Table(name = "users")
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
@@ -30,7 +29,8 @@ public class User {
     @Column(nullable = false)
     private Integer reputationPoints;
 
-    @OneToOne
+    @ToString.Exclude
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "wallet_id")
     private Wallet wallet;
 

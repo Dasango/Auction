@@ -1,15 +1,20 @@
 package com.auction.userfinance.entities;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
+@Table(name = "wallets")
+@Builder
+@ToString
 @NoArgsConstructor
+@AllArgsConstructor
 public class Wallet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,9 +30,12 @@ public class Wallet {
     @Column(nullable = false)
     private Currency currency;
 
+    @ToString.Exclude
     @OneToOne(mappedBy = "wallet")
     private User user;
 
+    @Builder.Default
+    @ToString.Exclude
     @OneToMany(mappedBy = "wallet")
-    List<FinancialTransaction> transactions;
+    List<FinancialTransaction> transactions = new ArrayList<>();
 }
