@@ -1,5 +1,6 @@
 package com.auction.userfinance.persistence.repositories;
 
+import com.auction.userfinance.persistence.dto.GhostUserDTO;
 import com.auction.userfinance.persistence.dto.UserRiskDTO;
 import com.auction.userfinance.persistence.dto.VIPUsersTransactionsAmountDTO;
 import com.auction.userfinance.persistence.entities.User;
@@ -7,7 +8,9 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @ApplicationScoped
 public class UserRepository extends RepositoryBase<User> {
@@ -51,4 +54,23 @@ public class UserRepository extends RepositoryBase<User> {
                 .getResultList();
     }
 
+    public List<GhostUserDTO> getGhostUsers(Integer year) {
+
+        LocalDateTime startOfYear = LocalDateTime.of(year, 1, 1, 0, 0, 0);
+
+        String jpql = "SELECT new com.auction.userfinance.persistence.dto.GhostUserDTO(" +
+                "   u.name," +
+                "   w.balance," +
+                "   MAX(t.timestamp)) " +
+                " FROM User u" +
+                " JOIN u.wallet w" +
+                " JOIN w.transactions t" +
+                " WHERE w.balance > 0" +
+                " GROUP BY u.name, w.balance" +
+                " HAVING MAX(t.timestamp) < :limitDate";
+
+        return this.em.createQuery(jpql, GhostUserDTO.class)
+                .setParameter("limitDate", startOfYear)
+                .getResultList();
+    }
 }
