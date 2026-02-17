@@ -9,8 +9,7 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/bidding-service" />
-            <option value="$PROJECT_DIR$/user-finance-module" />
+            <option value="$PROJECT_DIR$/user-auth" />
           </set>
         </option>
       </GradleProjectSettings>
