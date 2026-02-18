@@ -1,5 +1,5 @@
 rootProject.name = "Auction"
 
 include("user-auth")
-include("todays-session-service")
+include("today-session-service")
 include("deck-service")

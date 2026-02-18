@@ -10,7 +10,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/deck-service" />
-            <option value="$PROJECT_DIR$/todays-session-service" />
+            <option value="$PROJECT_DIR$/today-session-service" />
             <option value="$PROJECT_DIR$/user-auth" />
           </set>
         </option>
