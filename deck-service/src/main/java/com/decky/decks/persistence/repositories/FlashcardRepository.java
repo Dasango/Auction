@@ -13,4 +13,5 @@ public interface FlashcardRepository extends MongoRepository<Flashcard, String> 
     
     List<Flashcard> findByTagsContaining(String tag);
 
+    long countByDeckId(String deckId);
 }

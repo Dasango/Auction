@@ -31,29 +31,25 @@ public class JwtFilter extends OncePerRequestFilter {
             String token = authHeader.substring(7);
 
             try {
-                // Desencripta el token y extrae los datos
                 Claims claims = Jwts.parserBuilder()
                         .setSigningKey(secretKey.getBytes())
                         .build()
                         .parseClaimsJws(token)
                         .getBody();
 
-                // El "sub" contiene tu ID
                 String userId = claims.getSubject();
 
                 if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    // Guarda el usuario en el contexto de Spring (esto es lo que se inyecta en el Principal)
                     UsernamePasswordAuthenticationToken authToken = 
                             new UsernamePasswordAuthenticationToken(userId, null, new ArrayList<>());
                     
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
-            } catch (Exception e) {
-                // Token inválido o expirado. Se rechaza silenciosamente.
+            } catch (Exception ignored) {
+
             }
         }
-        
-        // Continúa con la petición
+
         filterChain.doFilter(request, response);
     }
 }

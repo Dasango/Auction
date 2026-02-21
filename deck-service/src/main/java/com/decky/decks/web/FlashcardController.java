@@ -22,9 +22,7 @@ public class FlashcardController {
             @RequestBody Flashcard flashcard,
             Principal principal
     ) {
-
         String userId = principal.getName();
-
         Flashcard savedFlashcard = flashcardService.createFlashcard(flashcard, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedFlashcard);
     }
@@ -34,5 +32,15 @@ public class FlashcardController {
         return ResponseEntity.ok(flashcardService.findAll());
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(
+            @PathVariable String id,
+            Principal principal
+    ) {
+        String userId = principal.getName();
 
+        flashcardService.deleteFlashcard(id, userId);
+
+        return ResponseEntity.noContent().build();
+    }
 }

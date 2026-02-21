@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
@@ -22,6 +23,7 @@ public class Flashcard {
     private String id;
 
     private String userId;
+    @Indexed
     private String deckId;
     
     private String frontText;
