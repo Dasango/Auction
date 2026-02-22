@@ -46,7 +46,7 @@ public class FlashcardController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/review")
+    @PostMapping("/review")
     public ResponseEntity<List<Flashcard>> getReviewBatch(
             @RequestBody FlashcardDto.ReviewBatchRequest request,
             Principal principal
