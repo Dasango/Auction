@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 import java.util.Map;
+import jakarta.validation.constraints.NotBlank;
 
 @Data
 @Builder
@@ -25,14 +26,27 @@ public class Flashcard {
     private String userId;
 
     private String deckId;
-    
+
+    @NotBlank(message = "El texto frontal es obligatorio")
     private String frontText;
+
+    @NotBlank(message = "El texto posterior es obligatorio")
     private String backText;
 
     private List<String> tags;
 
     private Map<String, String> extraInfo;
 
+    // Spaced Repetition (SuperMemo-2) fields
     private Integer nextReviewDate;
+
+    @Builder.Default
+    private Double easeFactor = 2.5;
+
+    @Builder.Default
+    private Integer interval = 0;
+
+    @Builder.Default
+    private Integer repetitions = 0;
 
 }

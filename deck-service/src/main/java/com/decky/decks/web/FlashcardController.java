@@ -21,24 +21,22 @@ public class FlashcardController {
 
     @PostMapping
     public ResponseEntity<Flashcard> create(
-            @RequestBody Flashcard flashcard,
-            Principal principal
-    ) {
+            @Valid @RequestBody Flashcard flashcard,
+            Principal principal) {
         String userId = principal.getName();
         Flashcard savedFlashcard = flashcardService.createFlashcard(flashcard, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedFlashcard);
     }
 
     @GetMapping
-    public ResponseEntity<List<Flashcard>> findAll(){
-        return ResponseEntity.ok(flashcardService.findAll());
+    public ResponseEntity<List<Flashcard>> findAll(Principal principal) {
+        return ResponseEntity.ok(flashcardService.findAll(principal.getName()));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
             @PathVariable String id,
-            Principal principal
-    ) {
+            Principal principal) {
         String userId = principal.getName();
 
         flashcardService.deleteFlashcard(id, userId);
@@ -49,19 +47,27 @@ public class FlashcardController {
     @PostMapping("/review")
     public ResponseEntity<List<Flashcard>> getReviewBatch(
             @Valid @RequestBody FlashcardDto.ReviewBatchRequest request,
-            Principal principal
-    ){
-      String userId = principal.getName();
+            Principal principal) {
+        String userId = principal.getName();
 
-      return ResponseEntity.ok(flashcardService.getReviewBatch(request.deck(), request.size(), userId));
+        return ResponseEntity.ok(flashcardService.getReviewBatch(request.deck(), request.size(), userId));
     };
+
+    @PostMapping("/{id}/review")
+    public ResponseEntity<Flashcard> processReview(
+            @PathVariable String id,
+            @RequestParam int quality,
+            Principal principal) {
+        String userId = principal.getName();
+        return ResponseEntity.ok(flashcardService.processReview(id, userId, quality));
+    }
 
     @PutMapping("/{id}")
     public ResponseEntity<Flashcard> updateCard(
-            @RequestBody Flashcard request,
-            Principal principal){
+            @PathVariable String id,
+            @Valid @RequestBody Flashcard request,
+            Principal principal) {
         String userId = principal.getName();
-
-        return ResponseEntity.ok(flashcardService.update(request,userId));
+        return ResponseEntity.ok(flashcardService.update(id, request, userId));
     }
 }
