@@ -1,7 +1,7 @@
 package com.decky.today.web.controllers;
 
 
-import com.decky.today.persistence.models.DailySession;
+import com.decky.today.models.DailySession;
 import com.decky.today.services.DailySessionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,5 +29,12 @@ public class DailySessionController {
         return sessionService.getSession(userId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/{user_id}")
+    public ResponseEntity<DailySession> updateSession(@PathVariable String userId){
+        return sessionService.updateSession(userId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 }

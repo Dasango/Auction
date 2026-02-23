@@ -1,4 +1,4 @@
-package com.decky.today.persistence.models;
+package com.decky.today.models;
 
 import lombok.Data;
 
