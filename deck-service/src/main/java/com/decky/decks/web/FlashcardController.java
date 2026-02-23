@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -22,22 +21,20 @@ public class FlashcardController {
     @PostMapping
     public ResponseEntity<Flashcard> create(
             @Valid @RequestBody Flashcard flashcard,
-            Principal principal) {
-        String userId = principal.getName();
+            @RequestHeader("X-User-Id") String userId) {
         Flashcard savedFlashcard = flashcardService.createFlashcard(flashcard, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedFlashcard);
     }
 
     @GetMapping
-    public ResponseEntity<List<Flashcard>> findAll(Principal principal) {
-        return ResponseEntity.ok(flashcardService.findAll(principal.getName()));
+    public ResponseEntity<List<Flashcard>> findAll(@RequestHeader("X-User-Id") String userId) {
+        return ResponseEntity.ok(flashcardService.findAll(userId));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
             @PathVariable String id,
-            Principal principal) {
-        String userId = principal.getName();
+            @RequestHeader("X-User-Id") String userId) {
 
         flashcardService.deleteFlashcard(id, userId);
 
@@ -47,8 +44,7 @@ public class FlashcardController {
     @PostMapping("/review")
     public ResponseEntity<List<Flashcard>> getReviewBatch(
             @Valid @RequestBody FlashcardDto.ReviewBatchRequest request,
-            Principal principal) {
-        String userId = principal.getName();
+            @RequestHeader("X-User-Id") String userId) {
 
         return ResponseEntity.ok(flashcardService.getReviewBatch(request.deck(), request.size(), userId));
     };
@@ -57,8 +53,7 @@ public class FlashcardController {
     public ResponseEntity<Flashcard> processReview(
             @PathVariable String id,
             @RequestParam int quality,
-            Principal principal) {
-        String userId = principal.getName();
+            @RequestHeader("X-User-Id") String userId) {
         return ResponseEntity.ok(flashcardService.processReview(id, userId, quality));
     }
 
@@ -66,8 +61,7 @@ public class FlashcardController {
     public ResponseEntity<Flashcard> updateCard(
             @PathVariable String id,
             @Valid @RequestBody Flashcard request,
-            Principal principal) {
-        String userId = principal.getName();
+            @RequestHeader("X-User-Id") String userId) {
         return ResponseEntity.ok(flashcardService.update(id, request, userId));
     }
 }
