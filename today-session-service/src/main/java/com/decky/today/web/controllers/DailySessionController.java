@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class DailySessionController {
 
+
     private final DailySessionService sessionService;
 
     @PostMapping
@@ -24,6 +25,7 @@ public class DailySessionController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<DailySession> getSession(@PathVariable String userId) {
+        //this is just to mess with git
         return sessionService.getSession(userId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
