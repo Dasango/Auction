@@ -47,4 +47,9 @@ public class FlashcardService {
 
         return oldOnes;
     }
+
+    public Flashcard update(Flashcard updatedCard, String userId){
+        updatedCard.setUserId(userId);
+        return flashcardRepository.save(updatedCard);
+    }
 }

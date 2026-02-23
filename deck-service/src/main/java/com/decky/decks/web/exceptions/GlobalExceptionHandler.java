@@ -19,8 +19,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<ErrorResponse> handleResponseStatusException(
-            ResponseStatusException ex,
-            HttpServletRequest request
+            ResponseStatusException ex
     ) {
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .status(ex.getStatusCode().value())
@@ -33,8 +32,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NullPointerException.class)
     public ResponseEntity<ErrorResponse> handleNullPointerException(
-            NullPointerException ex,
-            HttpServletRequest request
+            NullPointerException ex
     ) {
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .status(500)
