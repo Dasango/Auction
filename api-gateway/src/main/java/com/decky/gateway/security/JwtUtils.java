@@ -9,7 +9,6 @@ import javax.crypto.SecretKey;
 @Component
 public class JwtUtils {
 
-    // Same secret as user-auth service
     private final String SECRET_KEY = "secreto_super_seguro_100%_real_el_proyecto_de_apuestas";
 
     private SecretKey getSigningKey() {

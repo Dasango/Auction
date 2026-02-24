@@ -11,9 +11,9 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: mysecretpassword
-      POSTGRES_DB: auction_finance
+      POSTGRES_DB: user-auth
     ports:
-      - "5432:5432"
+      - "5433:5432"
     networks:
       - decky-network
     volumes:

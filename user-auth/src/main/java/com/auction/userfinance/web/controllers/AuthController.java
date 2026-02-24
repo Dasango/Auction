@@ -1,9 +1,10 @@
-package com.auction.userfinance.web.security;
+package com.auction.userfinance.web.controllers;
 
 import com.auction.userfinance.services.AppUserService;
 import com.auction.userfinance.services.dtos.AppUserDtos;
+import com.auction.userfinance.web.security.JwtUtils;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,7 +31,7 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<String> signUp(@RequestBody AppUserDtos.SignUpRequest request) {
+    public ResponseEntity<String> signUp(@RequestBody @Valid AppUserDtos.SignUpRequest request) {
 
         appUserService.createUser(request);
 

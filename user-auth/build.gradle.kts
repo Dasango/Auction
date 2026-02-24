@@ -15,11 +15,12 @@ repositories {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    runtimeOnly("com.h2database:h2")
+    runtimeOnly("org.postgresql:postgresql")
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-
+    //Validation for DTOs
+    implementation("org.springframework.boot:spring-boot-starter-validation")
     //Security
     implementation("org.springframework.boot:spring-boot-starter-security")
 
