@@ -1,8 +1,8 @@
-package com.auction.userfinance.services;
+package com.decky.auth.services;
 
-import com.auction.userfinance.persistence.models.AppUser;
-import com.auction.userfinance.persistence.repositories.AppUserRepository;
-import com.auction.userfinance.services.dtos.AppUserDtos;
+import com.decky.auth.persistence.models.AppUser;
+import com.decky.auth.persistence.repositories.AppUserRepository;
+import com.decky.auth.services.dtos.AppUserDtos;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;

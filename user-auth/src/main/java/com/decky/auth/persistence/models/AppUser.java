@@ -1,4 +1,4 @@
-package com.auction.userfinance.persistence.models;
+package com.decky.auth.persistence.models;
 
 import jakarta.persistence.*;
 

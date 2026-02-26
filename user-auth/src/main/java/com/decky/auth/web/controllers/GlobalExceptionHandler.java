@@ -1,4 +1,4 @@
-package com.auction.userfinance.web.controllers;
+package com.decky.auth.web.controllers;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

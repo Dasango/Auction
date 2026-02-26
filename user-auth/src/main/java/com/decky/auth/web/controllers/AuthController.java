@@ -1,8 +1,8 @@
-package com.auction.userfinance.web.controllers;
+package com.decky.auth.web.controllers;
 
-import com.auction.userfinance.services.AppUserService;
-import com.auction.userfinance.services.dtos.AppUserDtos;
-import com.auction.userfinance.web.security.JwtUtils;
+import com.decky.auth.services.AppUserService;
+import com.decky.auth.services.dtos.AppUserDtos;
+import com.decky.auth.web.security.JwtUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

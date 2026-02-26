@@ -8,10 +8,8 @@ services:
   # --- Infrastructure ---
   postgres:
     image: postgres:15-alpine
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: mysecretpassword
-      POSTGRES_DB: user-auth
+    env_file:
+      - .env
     ports:
       - "5433:5432"
     networks:
@@ -42,11 +40,8 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - postgres
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/auction_finance
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=mysecretpassword
-      - JWT_SECRET=secreto_super_seguro_100%_real_el_proyecto_de_apuestas
+    env_file:
+      - .env
     networks:
       - decky-network
 
@@ -56,8 +51,8 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - mongodb
-    environment:
-      - SPRING_DATA_MONGODB_URI=mongodb://mongodb:27017/decky
+    env_file:
+      - .env
     networks:
       - decky-network
 
@@ -68,9 +63,8 @@ services:
     depends_on:
       - redis
       - deck-service
-    environment:
-      - SPRING_DATA_REDIS_HOST=redis
-      - SPRING_DATA_REDIS_PORT=6379
+    env_file:
+      - .env
       # DeckServiceClient is naturally resolving "deck-service" from FeignClient(name="deck-service", url="http://deck-service:8080") -> see note below
     networks:
       - decky-network
@@ -83,8 +77,9 @@ services:
       - user-auth
       - deck-service
       - today-session-service
+    env_file:
+      - .env
     environment:
-      - JWT_SECRET=secreto_super_seguro_100%_real_el_proyecto_de_apuestas
       - SPRING_CLOUD_GATEWAY_ROUTES_0_URI=http://user-auth:8081
       - SPRING_CLOUD_GATEWAY_ROUTES_1_URI=http://deck-service:8080
       - SPRING_CLOUD_GATEWAY_ROUTES_2_URI=http://today-session-service:8082

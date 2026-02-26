@@ -1,4 +1,4 @@
-package com.auction.userfinance.web.security;
+package com.decky.auth.web.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

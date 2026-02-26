@@ -1,4 +1,4 @@
-package com.auction.userfinance.web.security;
+package com.decky.auth.web.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

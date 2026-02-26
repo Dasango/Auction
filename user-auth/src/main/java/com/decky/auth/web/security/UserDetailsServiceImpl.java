@@ -1,7 +1,7 @@
-package com.auction.userfinance.web.security;
+package com.decky.auth.web.security;
 
-import com.auction.userfinance.persistence.models.AppUser;
-import com.auction.userfinance.persistence.repositories.AppUserRepository;
+import com.decky.auth.persistence.models.AppUser;
+import com.decky.auth.persistence.repositories.AppUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;

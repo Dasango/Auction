@@ -1,7 +1,7 @@
-package com.auction.userfinance.persistence.repositories;
+package com.decky.auth.persistence.repositories;
 
 
-import com.auction.userfinance.persistence.models.AppUser;
+import com.decky.auth.persistence.models.AppUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

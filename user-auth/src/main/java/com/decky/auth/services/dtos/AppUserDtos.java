@@ -1,8 +1,8 @@
-package com.auction.userfinance.services.dtos;
+package com.decky.auth.services.dtos;
 
 
-import com.auction.userfinance.persistence.models.AppUser;
-import com.auction.userfinance.persistence.models.Role;
+import com.decky.auth.persistence.models.AppUser;
+import com.decky.auth.persistence.models.Role;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
