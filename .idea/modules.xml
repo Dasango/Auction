@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/api-gateway/Auction.api-gateway.main.iml" filepath="$PROJECT_DIR$/.idea/modules/api-gateway/Auction.api-gateway.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/deck-service/Auction.deck-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/deck-service/Auction.deck-service.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/today-session-service/Auction.today-session-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/today-session-service/Auction.today-session-service.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/user-auth/Auction.user-auth.iml" filepath="$PROJECT_DIR$/.idea/modules/user-auth/Auction.user-auth.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/user-auth/Auction.user-auth.test.iml" filepath="$PROJECT_DIR$/.idea/modules/user-auth/Auction.user-auth.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/user-auth/com.uce.Auction.user-auth.main.iml" filepath="$PROJECT_DIR$/.idea/modules/user-auth/com.uce.Auction.user-auth.main.iml" />
+    </modules>
+  </component>
+</project>
