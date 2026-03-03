@@ -4,8 +4,6 @@ server:
 spring:
   application:
     name: decky
-  jwt:
-    secret: ${JWT_SECRET:default_secret_for_local_dev}
   cloud:
     gateway:
       globalcors:
@@ -18,11 +16,9 @@ spring:
             allowCredentials: true
       routes:
         - id: user-auth
-          uri: http://user-auth:8080
+          uri: http://localhost:8080
           predicates:
-            - Path=/api/auth/**
-          filters:
-            - StripPrefix=1
+            - Path=/auth/**
             
         - id: deck-service
           uri: http://deck-service:8080
@@ -37,3 +33,6 @@ spring:
             - Path=/api/sessions/**
           filters:
             - StripPrefix=1
+
+jwt:
+  secret: ${JWT_SECRET:default_secret_for_local_dev}
