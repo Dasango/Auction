@@ -4,26 +4,13 @@ server:
 spring:
   application:
     name: decky
-jwt:
-  secret: ${JWT_SECRET:default_secret_for_local_dev}
   cloud:
     gateway:
       routes:
         - id: user-auth
-          uri: http://localhost:8082
-          predicates:
-            - Path=/api/auth/**
-            
-        - id: deck-service
           uri: http://localhost:8080
           predicates:
-            - Path=/api/flashcards/**
-          filters:
-            - AuthenticationFilter
-            
-        - id: today-session-service
-          uri: http://localhost:8081
-          predicates:
-            - Path=/api/sessions/**
-          filters:
-            - AuthenticationFilter
+            - Path=/auth/**
+
+jwt:
+  secret: ${JWT_SECRET:default_secret_for_local_dev}
