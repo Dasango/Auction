@@ -16,23 +16,25 @@ spring:
             allowCredentials: true
       routes:
         - id: user-auth
-          uri: ${USER_AUTH_URI:http://localhost:8081}
+          uri: ${USER_AUTH_URI}
           predicates:
             - Path=/auth/**
-            
+          filters:
+            - AuthenticationFilter
+
         - id: deck-service
-          uri: ${DECK_SERVICE_URI:http://localhost:8080}
+          uri: ${DECK_SERVICE_URI}
           predicates:
             - Path=/api/flashcards/**
           filters:
-            - StripPrefix=1
-            
+            - AuthenticationFilter
+
         - id: today-session-service
-          uri: ${TODAY_SESSION_SERVICE_URI:http://localhost:8082}
+          uri: ${TODAY_SESSION_SERVICE_URI}
           predicates:
             - Path=/api/sessions/**
           filters:
-            - StripPrefix=1
+            - AuthenticationFilter
 
 jwt:
-  secret: ${JWT_SECRET:default_secret_for_local_dev}
+  secret: ${JWT_SECRET}

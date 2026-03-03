@@ -24,4 +24,6 @@ public interface FlashcardService {
     Flashcard update(String id, FlashcardDto.UpdateRequest request, String userId);
 
     Flashcard processReview(String id, String userId, int quality);
+
+    Flashcard findById(String id, String userId);
 }

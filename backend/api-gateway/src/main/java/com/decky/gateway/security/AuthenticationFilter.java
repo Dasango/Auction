@@ -6,6 +6,7 @@ import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
@@ -47,11 +48,12 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                     // Extract subject (userId)
                     String userId = jwtUtils.extractUserId(authHeader);
 
-                    // Mutate request with X-User-Id header for downstream microservices
-                    exchange.getRequest().mutate()
+                    ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
                             .header("X-User-Id", userId)
                             .build();
 
+                    ServerWebExchange mutatedExchange = exchange.mutate().request(mutatedRequest).build();
+                    return chain.filter(mutatedExchange);
                 } catch (Exception e) {
                     System.out.println("Invalid token...!" + e.getMessage());
                     return onError(exchange, "Unauthorized access", HttpStatus.UNAUTHORIZED);

@@ -34,6 +34,10 @@ public class FlashcardServiceImpl implements FlashcardService {
 
     // ── Queries ──────────────────────────────────────────────────────────────────
 
+    public Flashcard findById(String id, String userId) {
+        return findAndAuthorize(id, userId, "consultar");
+    }
+
     public List<Flashcard> findAll(String userId) {
         return flashcardRepository.findAllByUserId(userId);
     }

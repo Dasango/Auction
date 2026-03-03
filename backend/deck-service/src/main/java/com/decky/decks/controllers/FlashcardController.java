@@ -42,6 +42,13 @@ public class FlashcardController {
         return ResponseEntity.ok(flashcardService.update(id, request, userId));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Flashcard> findById(
+            @PathVariable String id,
+            @RequestHeader("X-User-Id") String userId) {
+        return ResponseEntity.ok(flashcardService.findById(id, userId));
+    }
+
     @DeleteMapping("/{deckId}/{id}")
     public ResponseEntity<Void> delete(
             @PathVariable String deckId,
