@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:8083';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8083';
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem('decky_token');
@@ -11,7 +11,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   if (userId) {
     headers.set('X-User-Id', userId);
   }
-  if (!(options.body instanceof FormData)) {
+  if (!(options.body instanceof FormData) && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json');
   }
 
@@ -24,10 +24,22 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     return {} as T;
   }
 
-  const data = await response.json();
+  const contentType = response.headers.get('content-type');
+  const isText = headers.get('Accept') === 'text/plain' || (contentType && !contentType.includes('application/json'));
+
+  let data;
+  if (isText) {
+    data = await response.text();
+  } else {
+    try {
+      data = await response.json();
+    } catch (e) {
+      data = await response.text();
+    }
+  }
 
   if (!response.ok) {
-    throw new Error(data.message || response.statusText || 'Request failed');
+    throw new Error(typeof data === 'object' ? (data.message || response.statusText) : (data || response.statusText));
   }
 
   return data as T;
@@ -35,8 +47,16 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
 export const api = {
   auth: {
-    signup: (body: any) => request('/api/auth/signup', { method: 'POST', body: JSON.stringify(body) }),
-    login: (body: any) => request<string>('/api/auth/login', { method: 'POST', body: JSON.stringify(body), headers: { 'Accept': 'text/plain' } }),
+    signup: (body: any) => request<string>('/auth/signup', { 
+      method: 'POST', 
+      body: JSON.stringify(body),
+      headers: { 'Accept': 'text/plain' }
+    }),
+    login: (body: any) => request<string>('/auth/login', { 
+      method: 'POST', 
+      body: JSON.stringify(body), 
+      headers: { 'Accept': 'text/plain' } 
+    }),
   },
   flashcards: {
     getAll: () => request<any[]>('/api/flashcards'),

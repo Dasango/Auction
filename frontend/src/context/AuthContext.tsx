@@ -19,23 +19,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (username: string, password: string) => {
     const jwtToken = await api.auth.login({ username, password });
     
-    // In a real app, you'd decode the JWT to get the userId (sub)
-    // For this demo, we'll use the username as part of the simulation if necessary
-    // or assume the backend uses the token to identify.
-    // However, the flashcard service REQUIRES X-User-Id.
-    // Usually the API Gateway extracts userId from JWT and adds it to headers.
-    // But the spec says "Every request requires an X-User-Id header to identify the caller".
-    // I'll simulate extracting a userId from the token or just use a dummy for now 
-    // if I can't decode it easily without a library.
-    // Let's assume the username is the userId for this microservices setup simplicity
-    // or we'd rely on a JWT decoding library like jwt-decode.
-    
-    const simulatedUserId = `user_${username}`; 
+    // The API Gateway extracts userId from JWT and adds it to headers for backend services.
+    // In the frontend, we store the username as the userId since that's what the backend expects in X-User-Id.
+    // In a more complex setup, we would decode the JWT to get the 'sub' claim.
     
     localStorage.setItem('decky_token', jwtToken);
-    localStorage.setItem('decky_user_id', simulatedUserId);
+    localStorage.setItem('decky_user_id', username);
     setToken(jwtToken);
-    setUserId(simulatedUserId);
+    setUserId(username);
   };
 
   const signup = async (username: string, password: string) => {
