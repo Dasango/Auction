@@ -72,6 +72,8 @@ services:
     environment:
       - SERVER_PORT=8082
       - DECK_SERVICE_URL=http://deck-service:8080
+    ports:
+      - "8082:8082"
     networks:
       - decky-network
 
@@ -85,10 +87,6 @@ services:
       - today-session-service
     env_file:
       - .env
-    environment:
-      - USER_AUTH_URI=http://user-auth:8081
-      - DECK_SERVICE_URI=http://deck-service:8080
-      - TODAY_SESSION_SERVICE_URI=http://today-session-service:8082
     ports:
       - "8083:8083"
     networks:

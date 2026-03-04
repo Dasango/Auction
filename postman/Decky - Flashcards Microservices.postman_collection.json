@@ -1,0 +1,492 @@
+{
+  "info": {
+    "_postman_id": "c91ef776-0398-4905-9dcc-9940dbe5601a",
+    "name": "Decky - Flashcards Microservices",
+    "description": "API collection for Decky platform through API Gateway",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "50728709",
+    "_collection_link": "https://go.postman.co/collection/50728709-c91ef776-0398-4905-9dcc-9940dbe5601a?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "User Auth Service",
+      "item": [
+        {
+          "name": "Signup",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"johndoe\",\n  \"password\": \"securepassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{gatewayUrl}}/auth/signup",
+              "host": [
+                "{{gatewayUrl}}"
+              ],
+              "path": [
+                "auth",
+                "signup"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"johndoe\",\n  \"password\": \"securepassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{gatewayUrl}}/auth/login",
+              "host": [
+                "{{gatewayUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Flashcard Service",
+      "item": [
+        {
+          "name": "Get All Flashcards",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{userId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gatewayUrl}}/api/flashcards",
+              "host": [
+                "{{gatewayUrl}}"
+              ],
+              "path": [
+                "api",
+                "flashcards"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Flashcard",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{userId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"deckId\": \"{{deckId}}\",\n  \"frontText\": \"Bonjour\",\n  \"backText\": \"Hello\",\n  \"tags\": [\"greetings\"],\n  \"extraInfo\": { \"example\": \"Bonjour, comment ça va?\" }\n}"
+            },
+            "url": {
+              "raw": "{{gatewayUrl}}/api/flashcards",
+              "host": [
+                "{{gatewayUrl}}"
+              ],
+              "path": [
+                "api",
+                "flashcards"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Flashcard",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{userId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"frontText\": \"Bonjour\",\n  \"backText\": \"Hello (formal)\",\n  \"tags\": [\"greetings\", \"formal\"],\n  \"extraInfo\": {}\n}"
+            },
+            "url": {
+              "raw": "{{gatewayUrl}}/api/flashcards/{{flashcardId}}",
+              "host": [
+                "{{gatewayUrl}}"
+              ],
+              "path": [
+                "api",
+                "flashcards",
+                "{{flashcardId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Flashcard",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{userId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gatewayUrl}}/api/flashcards/{{deckId}}/{{flashcardId}}",
+              "host": [
+                "{{gatewayUrl}}"
+              ],
+              "path": [
+                "api",
+                "flashcards",
+                "{{deckId}}",
+                "{{flashcardId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Decks",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{userId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gatewayUrl}}/api/flashcards/decks",
+              "host": [
+                "{{gatewayUrl}}"
+              ],
+              "path": [
+                "api",
+                "flashcards",
+                "decks"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Find Flashcard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{userId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gatewayUrl}}/api/flashcards/69a79020d366fe682df9a080",
+              "host": [
+                "{{gatewayUrl}}"
+              ],
+              "path": [
+                "api",
+                "flashcards",
+                "69a79020d366fe682df9a080"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Deck Flashcards",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{userId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gatewayUrl}}/api/flashcards/deck/{{deckId}}",
+              "host": [
+                "{{gatewayUrl}}"
+              ],
+              "path": [
+                "api",
+                "flashcards",
+                "deck",
+                "{{deckId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Deck Size",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{userId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gatewayUrl}}/api/flashcards/deck/{{deckId}}/size",
+              "host": [
+                "{{gatewayUrl}}"
+              ],
+              "path": [
+                "api",
+                "flashcards",
+                "deck",
+                "{{deckId}}",
+                "size"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Review Batch",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{userId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"deck\": \"{{deckId}}\",\n  \"size\": 10\n}"
+            },
+            "url": {
+              "raw": "{{gatewayUrl}}/api/flashcards/review",
+              "host": [
+                "{{gatewayUrl}}"
+              ],
+              "path": [
+                "api",
+                "flashcards",
+                "review"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Submit Card Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{userId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gatewayUrl}}/api/flashcards/{{flashcardId}}/review?quality=4",
+              "host": [
+                "{{gatewayUrl}}"
+              ],
+              "path": [
+                "api",
+                "flashcards",
+                "{{flashcardId}}",
+                "review"
+              ],
+              "query": [
+                {
+                  "key": "quality",
+                  "value": "4"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Daily Session Service",
+      "item": [
+        {
+          "name": "Create Session",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{userId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"flashcardsToReview\": [\n    {\n      \"id\": \"{{flashcardId}}\",\n      \"deckId\": \"{{deckId}}\",\n      \"frontText\": \"Bonjour\",\n      \"backText\": \"Hello\",\n      \"tags\": [\"greetings\"],\n      \"extraInfo\": { \"example\": \"Bonjour, comment ça va?\" }\n    }\n  ],\n  \"cardsReviewedToday\": 0\n}"
+            },
+            "url": {
+              "raw": "{{gatewayUrl}}/api/sessions",
+              "host": [
+                "{{gatewayUrl}}"
+              ],
+              "path": [
+                "api",
+                "sessions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Active Session",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{userId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gatewayUrl}}/api/sessions?deckId={{deckId}}&batchSize=10",
+              "host": [
+                "{{gatewayUrl}}"
+              ],
+              "path": [
+                "api",
+                "sessions"
+              ],
+              "query": [
+                {
+                  "key": "deckId",
+                  "value": "{{deckId}}"
+                },
+                {
+                  "key": "batchSize",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Submit Session Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{userId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gatewayUrl}}/api/sessions/{{flashcardId}}/review?quality=4",
+              "host": [
+                "{{gatewayUrl}}"
+              ],
+              "path": [
+                "api",
+                "sessions",
+                "{{flashcardId}}",
+                "review"
+              ],
+              "query": [
+                {
+                  "key": "quality",
+                  "value": "4"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "gatewayUrl",
+      "value": "http://localhost:8083",
+      "type": "string"
+    },
+    {
+      "key": "jwt",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "user_123",
+      "type": "string"
+    },
+    {
+      "key": "deckId",
+      "value": "spanish-vocab",
+      "type": "string"
+    },
+    {
+      "key": "flashcardId",
+      "value": "64f1a2b3c4d5e6f7a8b9c0d1",
+      "type": "string"
+    }
+  ]
+}

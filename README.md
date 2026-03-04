@@ -82,7 +82,32 @@ X-User-Id: user_123
   }
 ]
 ```
+### `GET /api/flashcards/{id}`
+Returns a flashcards with the corresponding id.
 
+**Headers**
+```
+X-User-Id: user_123
+```
+
+**Response**
+```json
+[
+  {
+    "id": "64f1a2b3c4d5e6f7a8b9c0d1",
+    "userId": "user_123",
+    "deckId": "spanish-vocab",
+    "frontText": "Bonjour",
+    "backText": "Hello",
+    "tags": ["greetings"],
+    "extraInfo": { "example": "Bonjour, comment ça va?" },
+    "nextReviewDate": null,
+    "easeFactor": 2.5,
+    "interval": 0,
+    "repetitions": 0
+  }
+]
+```
 
 ### `POST /api/flashcards`
 Creates a new flashcard. `deckId`, `frontText`, and `backText` are required. `tags` and `extraInfo` are optional.
