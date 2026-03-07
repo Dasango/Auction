@@ -10,6 +10,5 @@ public interface TodayServiceClient {
 
     @DeleteMapping("/api/sessions/cache")
     void clearCache(
-            @RequestParam("deckId") String deckId,
-            @RequestHeader("X-User-Id") String userId);
+            @RequestParam("deckId") String deckId);
 }

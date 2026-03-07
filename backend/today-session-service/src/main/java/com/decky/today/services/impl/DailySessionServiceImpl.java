@@ -41,7 +41,7 @@ public class DailySessionServiceImpl implements DailySessionService {
         // If not in redis, fetch from deck-service via OpenFeign
         try {
             List<Map<String, Object>> cards = deckServiceClient
-                    .getReviewBatch(Map.of("deck", deckId, "size", batchSize), userId);
+                    .getReviewBatch(Map.of("deck", deckId, "size", batchSize));
 
             @SuppressWarnings("unchecked")
             List<FlashcardCacheDto> cachedCards = cards.stream().map(map -> {
@@ -83,7 +83,7 @@ public class DailySessionServiceImpl implements DailySessionService {
                     session.getFlashcardsToReview().removeIf(c -> c.getId().equals(cardId));
                     session.setCardsReviewedToday(session.getCardsReviewedToday() + 1);
                     // Sync via Feign client only if passed
-                    deckServiceClient.processReview(cardId, quality, userId);
+                    deckServiceClient.processReview(cardId, quality);
                 } else {
                     // If failed, move to the end of the list for re-review
                     Optional<FlashcardCacheDto> cardOpt = session.getFlashcardsToReview().stream()
@@ -107,7 +107,7 @@ public class DailySessionServiceImpl implements DailySessionService {
                         if (quality >= 3) {
                             session.getFlashcardsToReview().removeIf(c -> c.getId().equals(cardId));
                             session.setCardsReviewedToday(session.getCardsReviewedToday() + 1);
-                            deckServiceClient.processReview(cardId, quality, userId);
+                            deckServiceClient.processReview(cardId, quality);
                         } else {
                             FlashcardCacheDto card = cardOpt.get();
                             session.getFlashcardsToReview().remove(card);

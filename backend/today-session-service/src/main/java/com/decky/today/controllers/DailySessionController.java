@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+
 @RestController
 @RequestMapping("/api/sessions")
 @RequiredArgsConstructor
@@ -16,8 +18,8 @@ public class DailySessionController {
 
     @PostMapping
     public ResponseEntity<DailySession> createSession(@RequestBody DailySession session,
-            @RequestHeader("X-User-Id") String userId) {
-        session.setUserId(userId);
+            Principal principal) {
+        session.setUserId(principal.getName());
         DailySession savedSession = sessionService.saveSession(session);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedSession);
     }
@@ -26,8 +28,8 @@ public class DailySessionController {
     public ResponseEntity<DailySession> getSession(
             @RequestParam("deckId") String deckId,
             @RequestParam(value = "batchSize", defaultValue = "20") int batchSize,
-            @RequestHeader("X-User-Id") String userId) {
-        return sessionService.getSession(userId, deckId, batchSize)
+            Principal principal) {
+        return sessionService.getSession(principal.getName(), deckId, batchSize)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -37,24 +39,24 @@ public class DailySessionController {
             @PathVariable("cardId") String cardId,
             @RequestParam("quality") int quality,
             @RequestParam(value = "deckId", required = false) String deckId,
-            @RequestHeader("X-User-Id") String userId) {
-        sessionService.processReview(userId, deckId, cardId, quality);
+            Principal principal) {
+        sessionService.processReview(principal.getName(), deckId, cardId, quality);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping
     public ResponseEntity<Void> deleteSession(
             @RequestParam("deckId") String deckId,
-            @RequestHeader("X-User-Id") String userId) {
-        sessionService.deleteSession(userId, deckId);
+            Principal principal) {
+        sessionService.deleteSession(principal.getName(), deckId);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/cache")
     public ResponseEntity<Void> clearCache(
             @RequestParam("deckId") String deckId,
-            @RequestHeader("X-User-Id") String userId) {
-        sessionService.clearCache(userId, deckId);
+            Principal principal) {
+        sessionService.clearCache(principal.getName(), deckId);
         return ResponseEntity.noContent().build();
     }
 }
