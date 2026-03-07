@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Brain, Flame, Calendar, Clock, ArrowRight, Plus } from "lucide-react";
+import { Brain, Flame, Calendar, ArrowRight, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import api from "@/api/axios";
@@ -16,35 +16,52 @@ interface Deck {
 
 const Dashboard = () => {
   const [decks, setDecks] = useState<Deck[]>([]);
+  const [totalCards, setTotalCards] = useState(0);
+  const [reviewedToday, setReviewedToday] = useState(0);
   const [loading, setLoading] = useState(true);
   const [selectedDeck, setSelectedDeck] = useState<Deck | null>(null);
   const user = useAuthStore((state) => state.user);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchDecks = async () => {
+    const fetchDashboardData = async () => {
       try {
-        const { data: deckIds } = await api.get<string[]>("/api/flashcards/decks");
+        const [decksRes, cardsRes] = await Promise.all([
+          api.get<string[]>("/api/flashcards/decks"),
+          api.get<any[]>("/api/flashcards")
+        ]);
+
+        const deckIds = decksRes.data;
+        setTotalCards(cardsRes.data.length);
+
         const deckData = await Promise.all(
           deckIds.map(async (id) => {
-            const { data: sizeInfo } = await api.get(`/api/flashcards/deck/${id}/size`);
+            const [sizeRes, sessionRes] = await Promise.all([
+              api.get(`/api/flashcards/deck/${id}/size`),
+              api.get(`/api/sessions`, { params: { deckId: id } }).catch(() => ({ data: { cardsReviewedToday: 0 } }))
+            ]);
+            
+            if (sessionRes.data.cardsReviewedToday > 0) {
+              setReviewedToday(prev => prev + sessionRes.data.cardsReviewedToday);
+            }
+
             return {
               id,
               name: id,
-              size: sizeInfo.size,
-              dueToday: Math.floor(Math.random() * sizeInfo.size), // Mock due today
+              size: sizeRes.data.size,
+              dueToday: Math.floor(Math.random() * sizeRes.data.size), // Keep mock logic for "due" as README doesn't specify global due endpoint
             };
           })
         );
         setDecks(deckData);
       } catch (error) {
-        console.error("Failed to fetch decks:", error);
+        console.error("Failed to fetch dashboard data:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchDecks();
+    fetchDashboardData();
   }, []);
 
   const totalDue = decks.reduce((acc, deck) => acc + deck.dueToday, 0);
@@ -66,24 +83,18 @@ const Dashboard = () => {
         </Button>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <StatsCard 
-          title="Daily Streak" 
-          value="12 Days" 
-          icon={<Flame className="h-5 w-5 text-orange-500" />} 
-          description="Keep the fire burning!"
-        />
-        <StatsCard 
-          title="Cards Mastered" 
-          value="1,240" 
+          title="Total Cards" 
+          value={totalCards.toString()} 
           icon={<Brain className="h-5 w-5 text-purple-500" />} 
-          description="In your long-term memory"
+          description="In your collection"
         />
         <StatsCard 
-          title="Next Review" 
-          value="2h 15m" 
-          icon={<Clock className="h-5 w-5 text-blue-500" />} 
-          description="Upcoming session"
+          title="Reviewed Today" 
+          value={reviewedToday.toString()} 
+          icon={<Flame className="h-5 w-5 text-orange-500" />} 
+          description="Keep the streak alive!"
         />
         <StatsCard 
           title="Accuracy" 

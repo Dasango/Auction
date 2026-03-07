@@ -29,6 +29,17 @@ export const setupMocks = () => {
         }
 
         // Flashcard Mocks
+        if (url === "/api/flashcards") {
+            config.adapter = async () => ({
+                data: [
+                    { id: "1", userId: "user_123", deckId: "Spanish Vocab", frontText: "Hola", backText: "Hello", tags: ["basic"], extraInfo: {}, nextReviewDate: 20000, easeFactor: 2.5, interval: 1, repetitions: 1 },
+                    { id: "2", userId: "user_123", deckId: "Spanish Vocab", frontText: "Gracias", backText: "Thank you", tags: ["basic"], extraInfo: {}, nextReviewDate: 20005, easeFactor: 2.6, interval: 6, repetitions: 2 },
+                    { id: "3", userId: "user_123", deckId: "React Hooks", frontText: "useState", backText: "Manages state in functional components", tags: ["react"], extraInfo: {}, nextReviewDate: null, easeFactor: 2.5, interval: 0, repetitions: 0 },
+                ],
+                status: 200, statusText: "OK", headers: {}, config
+            });
+        }
+
         if (url === "/api/flashcards/decks") {
             config.adapter = async () => ({
                 data: ["Spanish Vocab", "React Hooks", "History"],
@@ -37,7 +48,7 @@ export const setupMocks = () => {
         }
 
         if (url.startsWith("/api/flashcards/deck/") && url.endsWith("/size")) {
-            const deckId = url.split("/")[4];
+            const deckId = decodeURIComponent(url.split("/")[4]);
             config.adapter = async () => ({
                 data: { deckId, size: deckId === "Spanish Vocab" ? 42 : 15 },
                 status: 200, statusText: "OK", headers: {}, config
@@ -45,12 +56,19 @@ export const setupMocks = () => {
         }
 
         if (url.startsWith("/api/flashcards/deck/") && !url.endsWith("/size")) {
-            const deckId = url.split("/")[4];
+            const deckId = decodeURIComponent(url.split("/")[4]);
             config.adapter = async () => ({
                 data: [
-                    { id: "1", frontText: "Hola", backText: "Hello", deckId },
-                    { id: "2", frontText: "Gracias", backText: "Thank you", deckId },
+                    { id: "1", frontText: "Hola", backText: "Hello", deckId, tags: ["basic"], extraInfo: {} },
+                    { id: "2", frontText: "Gracias", backText: "Thank you", deckId, tags: ["basic"], extraInfo: {} },
                 ],
+                status: 200, statusText: "OK", headers: {}, config
+            });
+        }
+
+        if (url.startsWith("/api/flashcards/") && config.method === "put") {
+            config.adapter = async () => ({
+                data: { ...JSON.parse(config.data), id: url.split("/")[3] },
                 status: 200, statusText: "OK", headers: {}, config
             });
         }

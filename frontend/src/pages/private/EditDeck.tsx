@@ -5,11 +5,15 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronLeft, Trash2, Plus, Upload, FileJson } from "lucide-react";
 import api from "@/api/axios";
+import { EditCardDialog } from "@/components/EditCardDialog";
+import { Edit3 } from "lucide-react";
 
 interface Flashcard {
   id: string;
   frontText: string;
   backText: string;
+  tags?: string[];
+  extraInfo?: any;
 }
 
 export default function EditDeck() {
@@ -17,6 +21,7 @@ export default function EditDeck() {
   const navigate = useNavigate();
   const [cards, setCards] = useState<Flashcard[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingCard, setEditingCard] = useState<Flashcard | null>(null);
 
   useEffect(() => {
     const fetchCards = async () => {
@@ -41,6 +46,16 @@ export default function EditDeck() {
     }
   };
 
+  const handleSave = async (updatedData: Partial<Flashcard>) => {
+    if (!editingCard) return;
+    try {
+      const { data } = await api.put(`/api/flashcards/${editingCard.id}`, updatedData);
+      setCards(prev => prev.map(c => c.id === data.id ? data : c));
+    } catch (error) {
+      console.error("Update failed:", error);
+    }
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -49,9 +64,7 @@ export default function EditDeck() {
     reader.onload = async (event) => {
       try {
         const json = JSON.parse(event.target?.result as string);
-        // Expecting { flashcards: [{ frontText, backText, deckId }] }
         await api.post("/api/flashcards/batch", json);
-        // Refresh
         const { data } = await api.get<Flashcard[]>(`/api/flashcards/deck/${deckId}`);
         setCards(data);
       } catch (error) {
@@ -100,7 +113,7 @@ export default function EditDeck() {
           </div>
         ) : (
           cards.map(card => (
-            <Card key={card.id} className="border-slate-100 shadow-sm hover:border-slate-200 transition-all rounded-2xl">
+            <Card key={card.id} className="border-slate-100 shadow-sm hover:border-slate-200 transition-all rounded-2xl group">
               <CardContent className="p-6 flex items-center justify-between">
                 <div className="grid grid-cols-2 gap-8 flex-1">
                   <div>
@@ -112,19 +125,36 @@ export default function EditDeck() {
                     <p className="font-medium text-slate-800">{card.backText}</p>
                   </div>
                 </div>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  onClick={() => handleDelete(card.id)}
-                  className="text-slate-300 hover:text-red-500 hover:bg-red-50 ml-4 rounded-xl"
-                >
-                  <Trash2 className="h-5 w-5" />
-                </Button>
+                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={() => setEditingCard(card)}
+                    className="text-slate-400 hover:text-slate-900 hover:bg-slate-50 rounded-xl"
+                  >
+                    <Edit3 className="h-5 w-5" />
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={() => handleDelete(card.id)}
+                    className="text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl"
+                  >
+                    <Trash2 className="h-5 w-5" />
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           ))
         )}
       </div>
+
+      <EditCardDialog 
+        card={editingCard}
+        isOpen={!!editingCard}
+        onClose={() => setEditingCard(null)}
+        onSave={handleSave}
+      />
     </div>
   );
 }
