@@ -34,6 +34,14 @@ public class FlashcardController {
                 .body(flashcardService.createFlashcard(request, userId));
     }
 
+    @PostMapping("/batch")
+    public ResponseEntity<List<Flashcard>> createBatch(
+            @Valid @RequestBody FlashcardDto.BatchCreateRequest request,
+            @RequestHeader("X-User-Id") String userId) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(flashcardService.createFlashcards(request, userId));
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<Flashcard> update(
             @PathVariable String id,

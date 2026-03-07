@@ -9,46 +9,42 @@ import java.util.Map;
 
 public class FlashcardDto {
 
-    // ── Requests ────────────────────────────────────────────────────────────────
+        // ── Requests ────────────────────────────────────────────────────────────────
 
-    public record CreateRequest(
-            @NotBlank(message = "El ID del mazo es obligatorio")
-            String deckId,
+        public record CreateRequest(
+                        @NotBlank(message = "El ID del mazo es obligatorio") String deckId,
 
-            @NotBlank(message = "El texto frontal es obligatorio")
-            String frontText,
+                        @NotBlank(message = "El texto frontal es obligatorio") String frontText,
 
-            @NotBlank(message = "El texto posterior es obligatorio")
-            String backText,
+                        @NotBlank(message = "El texto posterior es obligatorio") String backText,
 
-            List<String> tags,
-            Map<String, String> extraInfo
-    ) {}
+                        List<String> tags,
+                        Map<String, String> extraInfo) {
+        }
 
-    public record UpdateRequest(
-            @NotBlank(message = "El texto frontal es obligatorio")
-            String frontText,
+        public record BatchCreateRequest(
+                        @NotNull(message = "La lista de flashcards es obligatoria") List<CreateRequest> flashcards) {
+        }
 
-            @NotBlank(message = "El texto posterior es obligatorio")
-            String backText,
+        public record UpdateRequest(
+                        @NotBlank(message = "El texto frontal es obligatorio") String frontText,
 
-            List<String> tags,
-            Map<String, String> extraInfo
-    ) {}
+                        @NotBlank(message = "El texto posterior es obligatorio") String backText,
 
-    public record ReviewBatchRequest(
-            @NotBlank(message = "El ID del mazo es obligatorio")
-            String deck,
+                        List<String> tags,
+                        Map<String, String> extraInfo) {
+        }
 
-            @NotNull(message = "El tamaño es obligatorio")
-            @Min(value = 1, message = "El tamaño del lote debe ser de al menos 1 tarjeta")
-            Integer size
-    ) {}
+        public record ReviewBatchRequest(
+                        @NotBlank(message = "El ID del mazo es obligatorio") String deck,
 
-    // ── Responses ───────────────────────────────────────────────────────────────
+                        @NotNull(message = "El tamaño es obligatorio") @Min(value = 1, message = "El tamaño del lote debe ser de al menos 1 tarjeta") Integer size) {
+        }
 
-    public record DeckSizeResponse(
-            String deckId,
-            long size
-    ) {}
+        // ── Responses ───────────────────────────────────────────────────────────────
+
+        public record DeckSizeResponse(
+                        String deckId,
+                        long size) {
+        }
 }

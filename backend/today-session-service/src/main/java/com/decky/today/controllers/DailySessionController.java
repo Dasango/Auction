@@ -49,4 +49,12 @@ public class DailySessionController {
         sessionService.deleteSession(userId, deckId);
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/cache")
+    public ResponseEntity<Void> clearCache(
+            @RequestParam("deckId") String deckId,
+            @RequestHeader("X-User-Id") String userId) {
+        sessionService.clearCache(userId, deckId);
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -19,6 +19,8 @@ public interface FlashcardService {
 
     Flashcard createFlashcard(FlashcardDto.CreateRequest request, String userId);
 
+    List<Flashcard> createFlashcards(FlashcardDto.BatchCreateRequest request, String userId);
+
     void deleteFlashcard(String deckId, String id, String userId);
 
     Flashcard update(String id, FlashcardDto.UpdateRequest request, String userId);

@@ -162,6 +162,38 @@ X-User-Id: user_123
 }
 ```
 
+### `POST /api/flashcards/batch`
+
+Creates multiple flashcards at once. Ideal for bulk imports.
+
+**Headers**
+
+```
+X-User-Id: user_123
+```
+
+**Request Body**
+
+```json
+{
+  "flashcards": [
+    {
+      "deckId": "spanish-vocab",
+      "frontText": "Bonjour",
+      "backText": "Hello",
+      "tags": ["greetings"]
+    },
+    {
+      "deckId": "spanish-vocab",
+      "frontText": "Merci",
+      "backText": "Thank you"
+    }
+  ]
+}
+```
+
+**Response** `201 Created` (returns list of created cards)
+
 ### `PUT /api/flashcards/{id}`
 
 Updates the content of an existing flashcard. All four fields are accepted — `frontText` and `backText` are required, `tags` and `extraInfo` are optional. Only the owner can edit it.
@@ -368,7 +400,12 @@ quality=4
 
 # Daily Session Service
 
-Manages daily review sessions for a user. It acts as a cache layer on top of the Flashcard Service — on the first request of the day it fetches a review batch from the deck service and stores it in Redis, subsequent requests within the same day hit the cache directly. Sessions expire after 24 hours.
+Manages daily review sessions for a user. It acts as a cache layer on top of the Flashcard Service — on the first request of the day it fetches a review batch from the deck service and stores it in Redis, subsequent requests within the same day hit the cache directly.
+
+**Auto-Sync & Cleanup:**
+
+- **Invalidation**: The cache is automatically cleared whenever cards are added (single or batch), updated, or deleted in the corresponding deck.
+- **Midnight Reset**: All active sessions are flushed at midnight every day to ensure a fresh "today" view.
 
 All endpoints live under `/api/sessions`.
 
@@ -393,7 +430,11 @@ X-User-Id: user_123
       "frontText": "Bonjour",
       "backText": "Hello",
       "tags": ["greetings"],
-      "extraInfo": { "example": "Bonjour, comment ça va?" }
+      "extraInfo": { "example": "Bonjour, comment ça va?" },
+      "nextReviewDate": 19998,
+      "easeFactor": 2.5,
+      "interval": 1,
+      "repetitions": 1
     }
   ],
   "cardsReviewedToday": 0
@@ -412,7 +453,11 @@ X-User-Id: user_123
       "frontText": "Bonjour",
       "backText": "Hello",
       "tags": ["greetings"],
-      "extraInfo": { "example": "Bonjour, comment ça va?" }
+      "extraInfo": { "example": "Bonjour, comment ça va?" },
+      "nextReviewDate": 19998,
+      "easeFactor": 2.5,
+      "interval": 1,
+      "repetitions": 1
     }
   ],
   "cardsReviewedToday": 0
@@ -454,7 +499,11 @@ GET /api/sessions?deckId=spanish-vocab&batchSize=10
       "frontText": "Bonjour",
       "backText": "Hello",
       "tags": ["greetings"],
-      "extraInfo": {}
+      "extraInfo": {},
+      "nextReviewDate": 19998,
+      "easeFactor": 2.5,
+      "interval": 1,
+      "repetitions": 1
     },
     {
       "id": "64f1a2b3c4d5e6f7a8b9c0d2",
@@ -462,7 +511,11 @@ GET /api/sessions?deckId=spanish-vocab&batchSize=10
       "frontText": "Merci",
       "backText": "Thank you",
       "tags": ["greetings"],
-      "extraInfo": {}
+      "extraInfo": {},
+      "nextReviewDate": 20002,
+      "easeFactor": 2.5,
+      "interval": 5,
+      "repetitions": 1
     }
   ],
   "cardsReviewedToday": 3
@@ -471,7 +524,12 @@ GET /api/sessions?deckId=spanish-vocab&batchSize=10
 
 ## `POST /api/sessions/{cardId}/review`
 
-Submits a review result for a single card. It does two things: removes the card from the active session in Redis and forwards the review to the Flashcard Service to update the card's SM-2 values. `cardsReviewedToday` is incremented by one.
+Submits a review result for a single card.
+
+**Review-Until-Learned Logic:**
+
+- If `quality >= 3`: The card is **removed** from the active session in Redis and the review is forwarded to the Flashcard Service to update MongoDB. `cardsReviewedToday` is incremented.
+- If `quality < 3`: The card **stays** in the session but is moved to the **end of the queue** for re-review. It will not be synced to MongoDB until a passing grade is achieved.
 
 `quality` must be an integer between `0` and `5`.
 

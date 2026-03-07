@@ -1,10 +1,12 @@
 package com.decky.decks.services.impl;
 
+import com.decky.decks.clients.TodayServiceClient;
 import com.decky.decks.models.Flashcard;
 import com.decky.decks.repositories.FlashcardRepository;
 import com.decky.decks.dtos.FlashcardDto;
 import com.decky.decks.services.FlashcardService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Limit;
@@ -13,12 +15,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FlashcardServiceImpl implements FlashcardService {
 
     private final FlashcardRepository flashcardRepository;
+    private final TodayServiceClient todayServiceClient;
 
     // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -79,13 +84,36 @@ public class FlashcardServiceImpl implements FlashcardService {
                 .tags(request.tags())
                 .extraInfo(request.extraInfo())
                 .build();
-        return flashcardRepository.save(card);
+        Flashcard saved = flashcardRepository.save(card);
+        clearTodayCache(userId, request.deckId());
+        return saved;
+    }
+
+    @Override
+    public List<Flashcard> createFlashcards(FlashcardDto.BatchCreateRequest request, String userId) {
+        if (request.flashcards() == null || request.flashcards().isEmpty()) {
+            return List.of();
+        }
+        List<Flashcard> cards = request.flashcards().stream().map(req -> Flashcard.builder()
+                .userId(userId)
+                .deckId(req.deckId())
+                .frontText(req.frontText())
+                .backText(req.backText())
+                .tags(req.tags())
+                .extraInfo(req.extraInfo())
+                .build()).collect(Collectors.toList());
+        List<Flashcard> saved = flashcardRepository.saveAll(cards);
+        // Clear cache for all affected decks
+        request.flashcards().stream().map(FlashcardDto.CreateRequest::deckId).distinct()
+                .forEach(deckId -> clearTodayCache(userId, deckId));
+        return saved;
     }
 
     @CacheEvict(value = "deckSize", key = "#deckId + ':' + #userId")
     public void deleteFlashcard(String deckId, String id, String userId) {
         Flashcard card = findAndAuthorize(id, userId, "eliminar");
         flashcardRepository.delete(card);
+        clearTodayCache(userId, deckId);
     }
 
     public Flashcard update(String id, FlashcardDto.UpdateRequest request, String userId) {
@@ -94,7 +122,18 @@ public class FlashcardServiceImpl implements FlashcardService {
         card.setBackText(request.backText());
         card.setTags(request.tags());
         card.setExtraInfo(request.extraInfo());
-        return flashcardRepository.save(card);
+        Flashcard saved = flashcardRepository.save(card);
+        clearTodayCache(userId, card.getDeckId());
+        return saved;
+    }
+
+    private void clearTodayCache(String userId, String deckId) {
+        try {
+            todayServiceClient.clearCache(deckId, userId);
+        } catch (Exception e) {
+            log.error("Error clearing today-session-service cache for user {} and deck {}: {}", userId, deckId,
+                    e.getMessage());
+        }
     }
 
     public Flashcard processReview(String id, String userId, int quality) {

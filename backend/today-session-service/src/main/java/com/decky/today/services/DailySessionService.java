@@ -13,4 +13,6 @@ public interface DailySessionService {
     void processReview(String userId, String deckId, String cardId, int quality);
 
     void deleteSession(String userId, String deckId);
+
+    void clearCache(String userId, String deckId);
 }

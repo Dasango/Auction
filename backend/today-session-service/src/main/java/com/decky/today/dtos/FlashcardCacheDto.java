@@ -14,7 +14,10 @@ public class FlashcardCacheDto implements Serializable {
     private String backText;
 
     private List<String> tags;
-
     private Map<String, String> extraInfo;
+    private Integer nextReviewDate;
+    private Double easeFactor;
+    private Integer interval;
+    private Integer repetitions;
 
 }
