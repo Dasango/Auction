@@ -77,7 +77,10 @@ const Dashboard = () => {
             {totalDue > 0 ? `You have ${totalDue} cards due for review.` : "All caught up for today!"}
           </p>
         </div>
-        <Button className="bg-slate-900 text-white hover:bg-slate-800 px-8 py-6 rounded-2xl text-lg font-bold shadow-lg shadow-slate-200 transition-all hover:scale-[1.02]">
+        <Button 
+          onClick={() => navigate("/create-deck")}
+          className="bg-slate-900 text-white hover:bg-slate-800 px-8 py-6 rounded-2xl text-lg font-bold shadow-lg shadow-slate-200 transition-all hover:scale-[1.02]"
+        >
           Create New Deck
           <Plus className="ml-2 h-5 w-5" />
         </Button>

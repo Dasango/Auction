@@ -67,9 +67,29 @@ export const setupMocks = () => {
         }
 
         if (url.startsWith("/api/flashcards/") && config.method === "put") {
+            const data = typeof config.data === "string" ? JSON.parse(config.data) : config.data;
             config.adapter = async () => ({
-                data: { ...JSON.parse(config.data), id: url.split("/")[3] },
+                data: { ...data, id: url.split("/")[3] },
                 status: 200, statusText: "OK", headers: {}, config
+            });
+        }
+
+        if (url === "/api/flashcards" && config.method === "post") {
+            await new Promise(resolve => setTimeout(resolve, 600));
+            const data = typeof config.data === "string" ? JSON.parse(config.data) : config.data;
+            config.adapter = async () => ({
+                data: { ...data, id: Math.random().toString(36).substr(2, 9) },
+                status: 201, statusText: "Created", headers: {}, config
+            });
+        }
+
+        if (url === "/api/flashcards/batch" && config.method === "post") {
+            await new Promise(resolve => setTimeout(resolve, 600));
+            const data = typeof config.data === "string" ? JSON.parse(config.data) : config.data;
+            const { flashcards } = data;
+            config.adapter = async () => ({
+                data: flashcards.map((c: any) => ({ ...c, id: Math.random().toString(36).substr(2, 9) })),
+                status: 201, statusText: "Created", headers: {}, config
             });
         }
 
