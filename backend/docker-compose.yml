@@ -71,7 +71,7 @@ services:
       - .env
     environment:
       - SERVER_PORT=8082
-      - DECK_SERVICE_URL=http://deck-service:8080
+      - DECK_SERVICE_URI=http://deck-service:8080
     ports:
       - "8082:8082"
     networks:

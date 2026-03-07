@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-@FeignClient(name = "deck-service", url = "${deck.service.url:http://localhost:8080}")
+@FeignClient(name = "deck-service", url = "${DECK_SERVICE_URI}")
 public interface DeckServiceClient {
 
         @PostMapping("/api/flashcards/review")
