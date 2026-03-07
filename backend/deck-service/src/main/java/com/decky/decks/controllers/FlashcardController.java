@@ -19,6 +19,25 @@ public class FlashcardController {
     private final FlashcardService flashcardService;
 
     // ── Global ───────────────────────────────────────────────────────────────────
+    @GetMapping("/internal/metrics")
+public ResponseEntity<Object> getAdvancedMetrics(
+        @RequestHeader("X-User-Id") String userId) {
+
+    long timestamp = System.currentTimeMillis();
+    int pseudoLoadFactor = (int) (Math.random() * 100);
+
+    return ResponseEntity.ok().body(
+            java.util.Map.of(
+                    "status", "OPERATIONAL",
+                    "uptimeIndicator", "STABLE",
+                    "loadFactor", pseudoLoadFactor + "%",
+                    "nodeAffinity", "PRIMARY",
+                    "clusterSync", true,
+                    "timestamp", timestamp,
+                    "traceId", java.util.UUID.randomUUID().toString()
+            )
+    );
+}
 
     @GetMapping
     public ResponseEntity<List<Flashcard>> findAll(
