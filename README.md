@@ -58,7 +58,7 @@ Authorization: Bearer <token>
 
 Handles flashcard creation, editing, deletion, deck management, and spaced repetition reviews. All endpoints live under `/api/flashcards`.
 
-Every request requires an `Authorization` header with a valid JWT token. The microservices independently validate the token and extract the user identity from the `Principal` object.
+Every request requires an `X-User-Id` header to identify the caller. The service uses it to scope all data and enforce ownership.
 
 ## Global
 
@@ -69,7 +69,7 @@ Returns all flashcards belonging to the user across every deck.
 **Headers**
 
 ```
-Authorization: Bearer <token>
+X-User-Id: user_123
 ```
 
 **Response**
@@ -99,7 +99,7 @@ Returns a flashcards with the corresponding id.
 **Headers**
 
 ```
-Authorization: Bearer <token>
+X-User-Id: user_123
 ```
 
 **Response**
@@ -129,7 +129,7 @@ Creates a new flashcard. `deckId`, `frontText`, and `backText` are required. `ta
 **Headers**
 
 ```
-Authorization: Bearer <token>
+X-User-Id: user_123
 ```
 
 **Request Body**
@@ -169,7 +169,7 @@ Creates multiple flashcards at once. Ideal for bulk imports.
 **Headers**
 
 ```
-Authorization: Bearer <token>
+X-User-Id: user_123
 ```
 
 **Request Body**
@@ -201,7 +201,7 @@ Updates the content of an existing flashcard. All four fields are accepted — `
 **Headers**
 
 ```
-Authorization: Bearer <token>
+X-User-Id: user_123
 ```
 
 **Request Body**
@@ -240,7 +240,7 @@ Deletes a flashcard. Requires `deckId` in the path so the cached deck size is in
 **Headers**
 
 ```
-Authorization: Bearer <token>
+X-User-Id: user_123
 ```
 
 **Response** `204 No Content`
@@ -254,7 +254,7 @@ Returns all distinct deck IDs that the user has flashcards in.
 **Headers**
 
 ```
-Authorization: Bearer <token>
+X-User-Id: user_123
 ```
 
 **Response** `200 OK`
@@ -270,7 +270,7 @@ Returns all flashcards inside a specific deck belonging to the user.
 **Headers**
 
 ```
-Authorization: Bearer <token>
+X-User-Id: user_123
 ```
 
 **Response** `200 OK`
@@ -300,7 +300,7 @@ Returns the total card count for a deck. The value is **cached** and updates aut
 **Headers**
 
 ```
-Authorization: Bearer <token>
+X-User-Id: user_123
 ```
 
 **Response** `200 OK`
@@ -321,7 +321,7 @@ Returns a batch of cards due for review in a given deck. The batch is a mix of c
 **Headers**
 
 ```
-Authorization: Bearer <token>
+X-User-Id: user_123
 ```
 
 **Request Body**
@@ -369,7 +369,7 @@ Submits a review result for a single card using the **SM-2** spaced repetition a
 **Headers**
 
 ```
-Authorization: Bearer <token>
+X-User-Id: user_123
 ```
 
 **Query Params**
@@ -416,7 +416,7 @@ Creates or overwrites a session for the user. Useful for manually seeding a sess
 **Headers**
 
 ```
-Authorization: Bearer <token>
+X-User-Id: user_123
 ```
 
 **Request Body**
@@ -471,7 +471,7 @@ Returns the active session for the user. If no session exists in Redis, it autom
 **Headers**
 
 ```
-Authorization: Bearer <token>
+X-User-Id: user_123
 ```
 
 **Query Params**
@@ -536,7 +536,7 @@ Submits a review result for a single card.
 **Headers**
 
 ```
-Authorization: Bearer <token>
+X-User-Id: user_123
 ```
 
 **Query Params**
@@ -555,7 +555,7 @@ Flushes the active session for a specific deck. Useful when cards are added or d
 **Headers**
 
 ```
-Authorization: Bearer <token>
+X-User-Id: user_123
 ```
 
 **Query Params**
@@ -576,21 +576,21 @@ Serves as the primary entry point for all program services, providing a unified 
 
 All services use the same ports in both local and Docker environments:
 
-| Service               | Internal Port | Through Gateway (local)                |
-| --------------------- | ------------- | -------------------------------------- |
-| User Auth             | 8081          | `http://localhost:8083/auth`           |
-| Deck Service          | 8080          | `http://localhost:8083/api/flashcards` |
-| Today Session Service | 8082          | `http://localhost:8083/api/sessions`   |
-| API Gateway           | 8083          | `http://localhost:8083`                |
+| Service               | Internal Port | Local URL (direct)      | Through Gateway (local)                |
+| --------------------- | ------------- | ----------------------- | -------------------------------------- |
+| User Auth             | 8081          | `http://localhost:8081` | `http://localhost:8083/auth`           |
+| Deck Service          | 8080          | `http://localhost:8080` | `http://localhost:8083/api/flashcards` |
+| Today Session Service | 8082          | `http://localhost:8082` | `http://localhost:8083/api/sessions`   |
+| API Gateway           | 8083          | `http://localhost:8083` | —                                      |
 
-> [!IMPORTANT]
-> Microservices are isolated within the internal Docker network (`decky-network`) and are **not** directly accessible from the host machine for enhanced security. All traffic must pass through the API Gateway.
-
-When running with `docker-compose`, only the Gateway is published on the host:
+When running with `docker-compose`, the same ports are published on the host:
 
 - **Postgres**: `localhost:5433` → container `5432`
 - **MongoDB**: `localhost:27017` → container `27017`
 - **Redis**: `localhost:6379` → container `6379`
+- **User Auth**: `localhost:8081` → container `8081`
+- **Deck Service**: `localhost:8080` → container `8080`
+- **Today Session Service**: `localhost:8082` → container `8082`
 - **API Gateway**: `localhost:8083` → container `8083`
 
 <div align="center">

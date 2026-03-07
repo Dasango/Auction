@@ -45,7 +45,15 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                     // Validate Token
                     jwtUtils.validateToken(authHeader);
 
-                    return chain.filter(exchange);
+                    // Extract subject (userId)
+                    String userId = jwtUtils.extractUserId(authHeader);
+
+                    ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
+                            .header("X-User-Id", userId)
+                            .build();
+
+                    ServerWebExchange mutatedExchange = exchange.mutate().request(mutatedRequest).build();
+                    return chain.filter(mutatedExchange);
                 } catch (Exception e) {
                     System.out.println("Invalid token...!" + e.getMessage());
                     return onError(exchange, "Unauthorized access", HttpStatus.UNAUTHORIZED);

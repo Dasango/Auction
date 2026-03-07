@@ -10,10 +10,12 @@ public interface DeckServiceClient {
 
         @PostMapping("/api/flashcards/review")
         List<Map<String, Object>> getReviewBatch(
-                        @RequestBody Map<String, Object> request);
+                        @RequestBody Map<String, Object> request,
+                        @RequestHeader("X-User-Id") String userId);
 
         @PostMapping("/api/flashcards/{id}/review")
         Map<String, Object> processReview(
                         @PathVariable("id") String id,
-                        @RequestParam("quality") int quality);
+                        @RequestParam("quality") int quality,
+                        @RequestHeader("X-User-Id") String userId);
 }

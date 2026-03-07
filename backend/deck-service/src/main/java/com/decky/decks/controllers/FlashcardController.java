@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -22,70 +21,72 @@ public class FlashcardController {
     // ── Global ───────────────────────────────────────────────────────────────────
 
     @GetMapping
-    public ResponseEntity<List<Flashcard>> findAll(Principal principal) {
-        return ResponseEntity.ok(flashcardService.findAll(principal.getName()));
+    public ResponseEntity<List<Flashcard>> findAll(
+            @RequestHeader("X-User-Id") String userId) {
+        return ResponseEntity.ok(flashcardService.findAll(userId));
     }
 
     @PostMapping
     public ResponseEntity<Flashcard> create(
             @Valid @RequestBody FlashcardDto.CreateRequest request,
-            Principal principal) {
+            @RequestHeader("X-User-Id") String userId) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(flashcardService.createFlashcard(request, principal.getName()));
+                .body(flashcardService.createFlashcard(request, userId));
     }
 
     @PostMapping("/batch")
     public ResponseEntity<List<Flashcard>> createBatch(
             @Valid @RequestBody FlashcardDto.BatchCreateRequest request,
-            Principal principal) {
+            @RequestHeader("X-User-Id") String userId) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(flashcardService.createFlashcards(request, principal.getName()));
+                .body(flashcardService.createFlashcards(request, userId));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Flashcard> update(
             @PathVariable String id,
             @Valid @RequestBody FlashcardDto.UpdateRequest request,
-            Principal principal) {
-        return ResponseEntity.ok(flashcardService.update(id, request, principal.getName()));
+            @RequestHeader("X-User-Id") String userId) {
+        return ResponseEntity.ok(flashcardService.update(id, request, userId));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Flashcard> findById(
             @PathVariable String id,
-            Principal principal) {
-        return ResponseEntity.ok(flashcardService.findById(id, principal.getName()));
+            @RequestHeader("X-User-Id") String userId) {
+        return ResponseEntity.ok(flashcardService.findById(id, userId));
     }
 
     @DeleteMapping("/{deckId}/{id}")
     public ResponseEntity<Void> delete(
             @PathVariable String deckId,
             @PathVariable String id,
-            Principal principal) {
-        flashcardService.deleteFlashcard(deckId, id, principal.getName());
+            @RequestHeader("X-User-Id") String userId) {
+        flashcardService.deleteFlashcard(deckId, id, userId);
         return ResponseEntity.noContent().build();
     }
 
     // ── Deck-scoped ──────────────────────────────────────────────────────────────
 
     @GetMapping("/decks")
-    public ResponseEntity<List<String>> getAllDecks(Principal principal) {
-        return ResponseEntity.ok(flashcardService.getAllDecks(principal.getName()));
+    public ResponseEntity<List<String>> getAllDecks(
+            @RequestHeader("X-User-Id") String userId) {
+        return ResponseEntity.ok(flashcardService.getAllDecks(userId));
     }
 
     @GetMapping("/deck/{deckId}")
     public ResponseEntity<List<Flashcard>> findAllFromDeck(
             @PathVariable String deckId,
-            Principal principal) {
-        return ResponseEntity.ok(flashcardService.findAllFromDeck(deckId, principal.getName()));
+            @RequestHeader("X-User-Id") String userId) {
+        return ResponseEntity.ok(flashcardService.findAllFromDeck(deckId, userId));
     }
 
     @GetMapping("/deck/{deckId}/size")
     public ResponseEntity<FlashcardDto.DeckSizeResponse> getDeckSize(
             @PathVariable String deckId,
-            Principal principal) {
+            @RequestHeader("X-User-Id") String userId) {
         return ResponseEntity.ok(
-                new FlashcardDto.DeckSizeResponse(deckId, flashcardService.getDeckSize(deckId, principal.getName())));
+                new FlashcardDto.DeckSizeResponse(deckId, flashcardService.getDeckSize(deckId, userId)));
     }
 
     // ── Review ───────────────────────────────────────────────────────────────────
@@ -93,16 +94,16 @@ public class FlashcardController {
     @PostMapping("/review")
     public ResponseEntity<List<Flashcard>> getReviewBatch(
             @Valid @RequestBody FlashcardDto.ReviewBatchRequest request,
-            Principal principal) {
+            @RequestHeader("X-User-Id") String userId) {
         return ResponseEntity.ok(
-                flashcardService.getReviewBatch(request.deck(), request.size(), principal.getName()));
+                flashcardService.getReviewBatch(request.deck(), request.size(), userId));
     }
 
     @PostMapping("/{id}/review")
     public ResponseEntity<Flashcard> processReview(
             @PathVariable String id,
             @RequestParam int quality,
-            Principal principal) {
-        return ResponseEntity.ok(flashcardService.processReview(id, principal.getName(), quality));
+            @RequestHeader("X-User-Id") String userId) {
+        return ResponseEntity.ok(flashcardService.processReview(id, userId, quality));
     }
 }

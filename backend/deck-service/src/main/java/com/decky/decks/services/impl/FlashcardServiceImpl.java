@@ -129,7 +129,7 @@ public class FlashcardServiceImpl implements FlashcardService {
 
     private void clearTodayCache(String userId, String deckId) {
         try {
-            todayServiceClient.clearCache(deckId);
+            todayServiceClient.clearCache(deckId, userId);
         } catch (Exception e) {
             log.error("Error clearing today-session-service cache for user {} and deck {}: {}", userId, deckId,
                     e.getMessage());
