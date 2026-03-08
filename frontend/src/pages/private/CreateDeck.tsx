@@ -4,26 +4,23 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Plus, Trash2, ArrowLeft, Save, Sparkles, Layers } from "lucide-react";
+import { Plus, Trash2, ArrowLeft, Save, Sparkles, Layers, Upload } from "lucide-react";
 import api from "@/api/axios";
-
-interface FlashcardInput {
-  frontText: string;
-  backText: string;
-  tags: string[];
-}
+import { FlashcardForm } from "@/components/FlashcardForm";
+import type { FlashcardFormData } from "@/components/FlashcardForm";
+import { parseFileAsJson, validateFlashcardBatch } from "@/utils/jsonUtils";
+import { toast } from "@/components/ui/sonner";
 
 const CreateDeck = () => {
   const navigate = useNavigate();
   const [deckName, setDeckName] = useState("");
   const [step, setStep] = useState(1); // 1: Name, 2: Choose Method, 3: Add Cards
   const [isBatch, setIsBatch] = useState(false);
-  const [cards, setCards] = useState<FlashcardInput[]>([{ frontText: "", backText: "", tags: [] }]);
+  const [cards, setCards] = useState<FlashcardFormData[]>([{ frontText: "", backText: "", tags: [], extraInfo: {} }]);
   const [loading, setLoading] = useState(false);
 
   const handleAddCard = () => {
-    setCards([...cards, { frontText: "", backText: "", tags: [] }]);
+    setCards([...cards, { frontText: "", backText: "", tags: [], extraInfo: {} }]);
   };
 
   const handleRemoveCard = (index: number) => {
@@ -32,23 +29,38 @@ const CreateDeck = () => {
     }
   };
 
-  const handleCardChange = (index: number, field: keyof FlashcardInput, value: string) => {
+  const handleCardChange = (index: number, newData: FlashcardFormData) => {
     const newCards = [...cards];
-    if (field === "tags") {
-      newCards[index].tags = value.split(",").map(t => t.trim()).filter(t => t !== "");
-    } else {
-      newCards[index][field] = value as string;
-    }
+    newCards[index] = newData;
     setCards(newCards);
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const json = await parseFileAsJson(file);
+      const validatedCards = validateFlashcardBatch(json);
+      setCards(validatedCards);
+      setIsBatch(true);
+      toast.success(`Imported ${validatedCards.length} cards`);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to parse JSON");
+    } finally {
+      e.target.value = "";
+    }
   };
 
   const handleSubmit = async () => {
     if (!deckName.trim()) {
+      toast.error("Please enter a deck name");
       return;
     }
 
     const validCards = cards.filter(c => c.frontText.trim() && c.backText.trim());
     if (validCards.length === 0) {
+      toast.error("Please add at least one valid card");
       return;
     }
 
@@ -67,9 +79,11 @@ const CreateDeck = () => {
           }))
         });
       }
+      toast.success("Deck created successfully");
       navigate("/dashboard");
     } catch (error) {
       console.error("Failed to create deck:", error);
+      toast.error("Failed to create deck");
     } finally {
       setLoading(false);
     }
@@ -133,7 +147,7 @@ const CreateDeck = () => {
               </div>
               <div className="space-y-2">
                 <h3 className="text-2xl font-bold text-slate-900">Personalize</h3>
-                <p className="text-slate-500">Create your first card manually with full detail.</p>
+                <p className="text-slate-500">Create cards manually with full detail.</p>
               </div>
             </CardContent>
           </Card>
@@ -148,7 +162,7 @@ const CreateDeck = () => {
               </div>
               <div className="space-y-2">
                 <h3 className="text-2xl font-bold text-slate-900">Batch Addition</h3>
-                <p className="text-slate-500">Quickly add multiple cards to get started fast.</p>
+                <p className="text-slate-500">Quickly add multiple cards or import JSON.</p>
               </div>
             </CardContent>
           </Card>
@@ -159,9 +173,20 @@ const CreateDeck = () => {
         <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold text-slate-900">
-              {isBatch ? "Add Multiple Cards" : "Create First Card"}
+              {isBatch ? "Add Multiple Cards" : "Create Card"}
             </h2>
-            {isBatch && (
+            <div className="flex gap-2">
+              <div className="relative">
+                <Input 
+                  type="file" 
+                  accept=".json" 
+                  onChange={handleFileUpload}
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                />
+                <Button variant="outline" className="rounded-xl border-slate-200">
+                  <Upload className="mr-2 h-4 w-4" /> Import JSON
+                </Button>
+              </div>
               <Button 
                 onClick={handleAddCard}
                 variant="outline"
@@ -169,7 +194,7 @@ const CreateDeck = () => {
               >
                 <Plus className="mr-2 h-4 w-4" /> Add Another
               </Button>
-            )}
+            </div>
           </div>
 
           <div className="space-y-4">
@@ -178,7 +203,7 @@ const CreateDeck = () => {
                 <CardContent className="p-6 space-y-4">
                   <div className="flex justify-between items-center bg-slate-50 -m-6 mb-4 p-4 px-6 border-b border-slate-100">
                     <span className="text-xs font-bold uppercase tracking-widest text-slate-400">Card {index + 1}</span>
-                    {isBatch && cards.length > 1 && (
+                    {cards.length > 1 && (
                       <Button 
                         variant="ghost" 
                         size="sm" 
@@ -189,35 +214,10 @@ const CreateDeck = () => {
                       </Button>
                     )}
                   </div>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-xs font-bold text-slate-500 uppercase">Front Text</Label>
-                      <Textarea 
-                        placeholder="The question or concept..."
-                        value={card.frontText}
-                        onChange={(e) => handleCardChange(index, "frontText", e.target.value)}
-                        className="min-h-[100px] rounded-xl border-slate-200 focus:ring-slate-900 transition-all resize-none"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-xs font-bold text-slate-500 uppercase">Back Text</Label>
-                      <Textarea 
-                        placeholder="The answer or explanation..."
-                        value={card.backText}
-                        onChange={(e) => handleCardChange(index, "backText", e.target.value)}
-                        className="min-h-[100px] rounded-xl border-slate-200 focus:ring-slate-900 transition-all resize-none"
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-xs font-bold text-slate-500 uppercase">Tags (comma separated)</Label>
-                    <Input 
-                      placeholder="e.g. grammar, verb, important"
-                      value={card.tags.join(", ")}
-                      onChange={(e) => handleCardChange(index, "tags", e.target.value)}
-                      className="rounded-xl border-slate-200 focus:ring-slate-900 transition-all"
-                    />
-                  </div>
+                  <FlashcardForm 
+                    data={card} 
+                    onChange={(newData) => handleCardChange(index, newData)}
+                  />
                 </CardContent>
               </Card>
             ))}
@@ -231,7 +231,7 @@ const CreateDeck = () => {
             {loading ? "Creating Deck..." : (
               <span className="flex items-center gap-2">
                 <Save className="h-5 w-5" /> 
-                {isBatch ? `Create Deck with ${cards.length} Cards` : "Create Deck"}
+                {cards.length > 1 ? `Create Deck with ${cards.length} Cards` : "Create Deck"}
               </span>
             )}
           </Button>

@@ -3,10 +3,12 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { ChevronLeft, Trash2, Plus, Upload, FileJson } from "lucide-react";
+import { ChevronLeft, Trash2, Plus, Upload, FileJson, AlertCircle } from "lucide-react";
 import api from "@/api/axios";
 import { EditCardDialog } from "@/components/EditCardDialog";
 import { Edit3 } from "lucide-react";
+import { parseFileAsJson, validateFlashcardBatch } from "@/utils/jsonUtils";
+import { toast } from "@/components/ui/sonner";
 
 interface Flashcard {
   id: string;
@@ -22,37 +24,53 @@ export default function EditDeck() {
   const [cards, setCards] = useState<Flashcard[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingCard, setEditingCard] = useState<Flashcard | null>(null);
+  const [isAddingCard, setIsAddingCard] = useState(false);
 
   useEffect(() => {
-    const fetchCards = async () => {
-      try {
-        const { data } = await api.get<Flashcard[]>(`/api/flashcards/deck/${deckId}`);
-        setCards(data);
-      } catch (error) {
-        console.error("Failed to fetch cards:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchCards();
   }, [deckId]);
+
+  const fetchCards = async () => {
+    try {
+      setLoading(true);
+      const { data } = await api.get<Flashcard[]>(`/api/flashcards/deck/${deckId}`);
+      setCards(data);
+    } catch (error) {
+      console.error("Failed to fetch cards:", error);
+      toast.error("Failed to fetch cards");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleDelete = async (cardId: string) => {
     try {
       await api.delete(`/api/flashcards/${deckId}/${cardId}`);
       setCards(prev => prev.filter(c => c.id !== cardId));
+      toast.success("Card deleted");
     } catch (error) {
       console.error("Delete failed:", error);
+      toast.error("Failed to delete card");
     }
   };
 
   const handleSave = async (updatedData: Partial<Flashcard>) => {
-    if (!editingCard) return;
     try {
-      const { data } = await api.put(`/api/flashcards/${editingCard.id}`, updatedData);
-      setCards(prev => prev.map(c => c.id === data.id ? data : c));
+      if (editingCard) {
+        const { data } = await api.put(`/api/flashcards/${editingCard.id}`, updatedData);
+        setCards(prev => prev.map(c => c.id === data.id ? data : c));
+        toast.success("Card updated");
+      } else {
+        const { data } = await api.post("/api/flashcards", {
+          deckId,
+          ...updatedData
+        });
+        setCards(prev => [...prev, data]);
+        toast.success("Card added");
+      }
     } catch (error) {
-      console.error("Update failed:", error);
+      console.error("Operation failed:", error);
+      toast.error("Failed to save card");
     }
   };
 
@@ -60,18 +78,23 @@ export default function EditDeck() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-      try {
-        const json = JSON.parse(event.target?.result as string);
-        await api.post("/api/flashcards/batch", json);
-        const { data } = await api.get<Flashcard[]>(`/api/flashcards/deck/${deckId}`);
-        setCards(data);
-      } catch (error) {
-        console.error("Upload failed:", error);
-      }
-    };
-    reader.readAsText(file);
+    try {
+      const json = await parseFileAsJson(file);
+      const validatedCards = validateFlashcardBatch(json);
+      
+      await api.post("/api/flashcards/batch", {
+        flashcards: validatedCards.map(c => ({ ...c, deckId }))
+      });
+      
+      toast.success(`Successfully imported ${validatedCards.length} cards`);
+      fetchCards();
+    } catch (error: any) {
+      console.error("Upload failed:", error);
+      toast.error(error.message || "Upload failed");
+    } finally {
+      // Reset input
+      e.target.value = "";
+    }
   };
 
   return (
@@ -96,7 +119,13 @@ export default function EditDeck() {
               Import JSON
             </Button>
           </div>
-          <Button className="bg-slate-900 text-white hover:bg-slate-800 rounded-xl">
+          <Button 
+            onClick={() => {
+              setEditingCard(null);
+              setIsAddingCard(true);
+            }}
+            className="bg-slate-900 text-white hover:bg-slate-800 rounded-xl"
+          >
             <Plus className="mr-2 h-4 w-4" />
             Add Card
           </Button>
@@ -125,11 +154,20 @@ export default function EditDeck() {
                     <p className="font-medium text-slate-800">{card.backText}</p>
                   </div>
                 </div>
+                {card.extraInfo && Object.keys(card.extraInfo).length > 0 && (
+                  <div className="px-4 text-xs text-slate-400 font-mono">
+                    <AlertCircle className="h-4 w-4 inline mr-1" />
+                    Extra Info
+                  </div>
+                )}
                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <Button 
                     variant="ghost" 
                     size="icon" 
-                    onClick={() => setEditingCard(card)}
+                    onClick={() => {
+                      setEditingCard(card);
+                      setIsAddingCard(true);
+                    }}
                     className="text-slate-400 hover:text-slate-900 hover:bg-slate-50 rounded-xl"
                   >
                     <Edit3 className="h-5 w-5" />
@@ -151,8 +189,11 @@ export default function EditDeck() {
 
       <EditCardDialog 
         card={editingCard}
-        isOpen={!!editingCard}
-        onClose={() => setEditingCard(null)}
+        isOpen={isAddingCard}
+        onClose={() => {
+          setIsAddingCard(false);
+          setEditingCard(null);
+        }}
         onSave={handleSave}
       />
     </div>

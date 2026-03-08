@@ -40,7 +40,7 @@ export default function StudySession() {
     fetchSession();
   }, [deckId]);
 
-  const handleReview = async (quality: number) => {
+const handleReview = async (quality: number) => {
     if (!session) return;
     const card = session.flashcardsToReview[currentIndex];
     
@@ -49,11 +49,20 @@ export default function StudySession() {
         params: { quality, deckId }
       });
       
-      if (currentIndex < session.flashcardsToReview.length - 1) {
+      let updatedCards = [...session.flashcardsToReview];
+      
+      if (quality < 3) {
+        updatedCards.push(card);
+        setSession({
+          ...session,
+          flashcardsToReview: updatedCards
+        });
+      }
+      
+      if (currentIndex < updatedCards.length - 1) {
         setCurrentIndex(prev => prev + 1);
         setIsFlipped(false);
       } else {
-        // Session complete
         navigate("/dashboard");
       }
     } catch (error) {
